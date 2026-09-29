@@ -53,5 +53,8 @@ export async function forwardTryOn(request: Request, path: string) {
     const value = res.headers.get(name);
     if (value) out.set(name, value);
   }
+  // fetch has already unzipped a compressed body, so its content-length (the zipped size) would cut
+  // the answer short: the shopper's browser would get truncated JSON and a blank try-on.
+  if (res.headers.has("content-encoding")) out.delete("content-length");
   return new Response(res.body, { status: res.status, headers: out });
 }
