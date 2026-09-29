@@ -37,8 +37,9 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { ...init, headers: { "Content-Type": "application/json" } });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error ?? "Try-on is busy right now. Please try again in a minute.");
+  // An unreadable answer is a failure too, never an empty success (that showed a blank picture).
+  const body = await res.json().catch(() => null);
+  if (!res.ok || !body) throw new Error(body?.error ?? "Try-on is busy right now. Please try again in a minute.");
   return body as T;
 }
 

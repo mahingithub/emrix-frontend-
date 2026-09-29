@@ -158,7 +158,7 @@ export function HeroReel({ scenes }: { scenes: ReelScene[] }) {
         onPointerUp={onPointerUp}
         onPointerCancel={() => (swipe.current = null)}
         onKeyDown={onKeyDown}
-        className="reel relative isolate h-[calc(100svh-6rem)] max-h-[780px] min-h-[560px] touch-pan-y touch-pinch-zoom overflow-hidden border-b-2 border-ink bg-sumi text-washi lg:h-[calc(100svh-6.5rem)] lg:max-h-[880px] lg:min-h-[620px]"
+        className="reel relative isolate flex flex-col min-h-[calc(100svh-6rem)] touch-pan-y touch-pinch-zoom overflow-hidden border-b-2 border-ink bg-sumi text-washi lg:h-[calc(100svh-6.5rem)] lg:max-h-[880px] lg:min-h-[620px]"
         style={
           {
             "--glow": scene.glow,
@@ -236,7 +236,7 @@ export function HeroReel({ scenes }: { scenes: ReelScene[] }) {
         </div>
 
         {/* Copy and scene UI */}
-        <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col px-4 pb-6 pt-3 lg:grid lg:grid-cols-12 lg:grid-rows-[auto_1fr_auto] lg:gap-x-6 lg:px-8 lg:py-8">
+        <div className="relative z-10 mx-auto flex w-full flex-1 max-w-7xl flex-col px-4 pb-6 pt-3 lg:grid lg:grid-cols-12 lg:grid-rows-[auto_1fr_auto] lg:gap-x-6 lg:px-8 lg:py-8">
           {/* Headline */}
           <div className="order-3 lg:order-none lg:col-span-6 lg:row-span-3 lg:row-start-1 lg:self-center">
             <span className="inline-flex items-center gap-2 rounded-full border-2 border-washi/80 bg-sumi/50 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-sm sm:text-[11px]">
@@ -267,11 +267,13 @@ export function HeroReel({ scenes }: { scenes: ReelScene[] }) {
 
             <p className="mt-6 hidden max-w-md text-base leading-relaxed text-washi/75 lg:block">{SITE_BLURB}</p>
 
-            <div className="mt-5 flex gap-2 lg:mt-8 lg:gap-3">
-              <Link href="/shop?tag=new" className={btn({ variant: "stage", className: "h-12 px-4 text-[13px] sm:px-6 sm:text-sm lg:h-14 lg:px-8 lg:text-base" })}>
+            {/* size "sm" supplies the phone padding (a px-4 here would lose to "md"'s px-6); the pair
+                stacks full width on screens too narrow for both, rather than being clipped. */}
+            <div className="mt-5 flex flex-wrap gap-2 lg:mt-8 lg:gap-3">
+              <Link href="/shop?tag=new" className={btn({ variant: "stage", size: "sm", className: "h-12 grow text-[13px] sm:grow-0 sm:px-6 sm:text-sm lg:h-14 lg:px-8 lg:text-base" })}>
                 Shop the drop <ArrowRight className="size-5" />
               </Link>
-              <Link href="/anime" className={btn({ variant: "stageOutline", className: "h-12 px-4 text-[13px] sm:px-6 sm:text-sm lg:h-14 lg:px-8 lg:text-base" })}>
+              <Link href="/anime" className={btn({ variant: "stageOutline", size: "sm", className: "h-12 grow text-[13px] sm:grow-0 sm:px-6 sm:text-sm lg:h-14 lg:px-8 lg:text-base" })}>
                 Browse anime
               </Link>
             </div>
