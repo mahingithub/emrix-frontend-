@@ -158,7 +158,7 @@ export function HeroReel({ scenes }: { scenes: ReelScene[] }) {
         onPointerUp={onPointerUp}
         onPointerCancel={() => (swipe.current = null)}
         onKeyDown={onKeyDown}
-        className="reel relative isolate h-[calc(100svh-6rem)] max-h-[780px] min-h-[560px] touch-pan-y touch-pinch-zoom overflow-hidden border-b-2 border-ink bg-sumi text-washi lg:h-[calc(100svh-6.5rem)] lg:max-h-[880px] lg:min-h-[620px]"
+        className="reel relative isolate flex min-h-[min(calc(100svh-6rem),780px)] flex-col touch-pan-y touch-pinch-zoom overflow-hidden border-b-2 border-ink bg-sumi text-washi lg:block lg:h-[calc(100svh-6.5rem)] lg:max-h-[880px] lg:min-h-[620px]"
         style={
           {
             "--glow": scene.glow,
@@ -235,8 +235,8 @@ export function HeroReel({ scenes }: { scenes: ReelScene[] }) {
           <div className="reel-flash absolute inset-0 bg-[radial-gradient(circle_at_62%_40%,white,color-mix(in_srgb,var(--glow)_70%,transparent)_40%,transparent_75%)]" />
         </div>
 
-        {/* Copy and scene UI */}
-        <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col px-4 pb-6 pt-3 lg:grid lg:grid-cols-12 lg:grid-rows-[auto_1fr_auto] lg:gap-x-6 lg:px-8 lg:py-8">
+        {/* Copy and scene UI. On phones the stage grows to fit this rather than cutting off the buttons. */}
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pb-6 pt-3 lg:grid lg:h-full lg:grid-cols-12 lg:grid-rows-[auto_1fr_auto] lg:gap-x-6 lg:px-8 lg:py-8">
           {/* Headline */}
           <div className="order-3 lg:order-none lg:col-span-6 lg:row-span-3 lg:row-start-1 lg:self-center">
             <span className="inline-flex items-center gap-2 rounded-full border-2 border-washi/80 bg-sumi/50 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-sm sm:text-[11px]">
@@ -245,7 +245,7 @@ export function HeroReel({ scenes }: { scenes: ReelScene[] }) {
                 <span className="relative size-2 rounded-full bg-shu" />
               </span>
               New drop is live
-              <span className="font-jp text-kin">新作</span>
+              <span className="font-jp text-kin max-[22.5rem]:hidden">新作</span>
             </span>
 
             <h1 className="mt-4 font-display text-[clamp(2.6rem,12.5vw,4.4rem)] uppercase leading-[0.88] tracking-tight [text-shadow:0_4px_24px_rgb(0_0_0/0.45)] lg:mt-6 lg:text-[clamp(4rem,11.5svh,5.4rem)] xl:text-[clamp(4rem,12.5svh,6.6rem)]">
@@ -267,11 +267,11 @@ export function HeroReel({ scenes }: { scenes: ReelScene[] }) {
 
             <p className="mt-6 hidden max-w-md text-base leading-relaxed text-washi/75 lg:block">{SITE_BLURB}</p>
 
-            <div className="mt-5 flex gap-2 lg:mt-8 lg:gap-3">
-              <Link href="/shop?tag=new" className={btn({ variant: "stage", className: "h-12 px-4 text-[13px] sm:px-6 sm:text-sm lg:h-14 lg:px-8 lg:text-base" })}>
+            <div className="mt-5 flex flex-wrap gap-2 lg:mt-8 lg:gap-3">
+              <Link href="/shop?tag=new" className={btn({ variant: "stage", className: "h-12 flex-1 px-3 text-xs sm:flex-none sm:px-6 sm:text-sm lg:h-14 lg:px-8 lg:text-base" })}>
                 Shop the drop <ArrowRight className="size-5" />
               </Link>
-              <Link href="/anime" className={btn({ variant: "stageOutline", className: "h-12 px-4 text-[13px] sm:px-6 sm:text-sm lg:h-14 lg:px-8 lg:text-base" })}>
+              <Link href="/anime" className={btn({ variant: "stageOutline", className: "h-12 flex-1 px-3 text-xs sm:flex-none sm:px-6 sm:text-sm lg:h-14 lg:px-8 lg:text-base" })}>
                 Browse anime
               </Link>
             </div>
@@ -337,8 +337,9 @@ export function HeroReel({ scenes }: { scenes: ReelScene[] }) {
             </div>
           </div>
 
-          {/* Featured tee */}
-          <div className="order-2 flex flex-1 items-end justify-end pb-5 lg:order-none lg:col-span-3 lg:col-start-7 lg:row-span-2 lg:row-start-2 lg:justify-start lg:self-end lg:pb-2">
+          {/* Featured tee. On phones it tucks in beside "Wear the" (the badge plus two headline lines,
+              whose size it follows) so the buttons stay on the first screen. */}
+          <div className="order-2 flex flex-1 items-end justify-end pb-5 max-[35rem]:-mb-[calc(2.3rem+1.76*max(2.6rem,12.5vw))] max-[35rem]:pb-0 lg:order-none lg:col-span-3 lg:col-start-7 lg:row-span-2 lg:row-start-2 lg:justify-start lg:self-end lg:pb-2">
             <div className="relative transition-transform duration-700 ease-out" style={parallax(-14)}>
               <div className="reel-float">
                 <Link

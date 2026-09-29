@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState, type ReactNode } from "react";
 import { Banknote, ChevronDown, Flame, Play, RefreshCw, Ruler, ScanFace, Truck } from "lucide-react";
 import { FIT_LABEL, SIZES, stockOf, totalStock } from "@emrix/shared/catalog";
-import { liveDrop, walletsOn } from "@emrix/shared/settings";
+import { walletsOn } from "@emrix/shared/settings";
+import { useLiveDrop } from "@/lib/use-live-drop";
 import { useCatalog } from "@/components/catalog-context";
 import type { Anime, Product, ProductImage, ProductVideo, Size, TeeColor } from "@emrix/shared/types";
 import { cn, formatBDT, tintBg } from "@emrix/shared/utils";
@@ -17,7 +18,6 @@ import { flyToCart } from "@/components/ui/impact";
 import { QtyStepper } from "@/components/cart/qty-stepper";
 import { ProductPhoto, ProductVisual, productPhotos, type TeeView } from "@emrix/shared/ui/product-visual";
 import { SizeGuideModal } from "./size-guide";
-import { TryOnStudio } from "@/components/try-on/lazy";
 
 export function ProductView({ product, anime, tryOn: tryOnEnabled = false }: { product: Product; anime: Anime; tryOn?: boolean }) {
   const { add } = useCart();
@@ -30,8 +30,6 @@ export function ProductView({ product, anime, tryOn: tryOnEnabled = false }: { p
   const [sizeError, setSizeError] = useState(0);
   const [guideOpen, setGuideOpen] = useState(false);
   const closeGuide = useCallback(() => setGuideOpen(false), []);
-  const [tryOn, setTryOn] = useState(false);
-  const closeTryOn = useCallback(() => setTryOn(false), []);
 
   // Keep the pictured colour explicit when a variant has no dedicated photograph.
   const photos = productPhotos(product, color.name);
@@ -57,7 +55,7 @@ export function ProductView({ product, anime, tryOn: tryOnEnabled = false }: { p
 
   const gsm = product.fit === "oversized" ? 220 : 180;
   // Numbered drop (Admin → Settings): pieces left = edition size minus pieces sold.
-  const drop = liveDrop(settings, [product]);
+  const drop = useLiveDrop(settings, [product]);
   const limitedLeft = drop ? Math.max(0, drop.total - product.sold) : null;
   const { delivery } = settings;
   const wallets = walletsOn(settings);
@@ -80,7 +78,7 @@ export function ProductView({ product, anime, tryOn: tryOnEnabled = false }: { p
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-12">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-12">
       {/* Gallery: photos are 4:5, so the frame is capped by screen height to keep the whole tee in view. */}
       <div className="lg:w-[min(43rem,calc(55vw-2rem),calc((100svh-11rem)*0.8))]">
         <div className="mx-auto max-w-[max(20rem,calc((100svh-9rem)*0.8))] lg:sticky lg:top-24 lg:max-w-none">
@@ -126,13 +124,13 @@ export function ProductView({ product, anime, tryOn: tryOnEnabled = false }: { p
               </span>
             )}
             {tryOnEnabled && photos.length > 0 && (
-              <button
-                onClick={() => setTryOn(true)}
+              <Link
+                href={`/product/${product.slug}/try-on?${new URLSearchParams({ color: color.name, ...(size && { size }) })}`}
                 className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full border-2 border-sumi bg-kin px-3 py-1.5 text-xs font-extrabold uppercase tracking-wide text-sumi shadow-[2px_2px_0_0_var(--color-sumi)] transition-transform hover:-translate-y-px"
                 data-impact
               >
                 <ScanFace className="size-4" /> Try on
-              </button>
+              </Link>
             )}
           </div>
 
@@ -210,7 +208,7 @@ export function ProductView({ product, anime, tryOn: tryOnEnabled = false }: { p
           <p className="text-sm font-bold">
             Colour: <span className="font-medium text-ink/70">{color.name}</span>
           </p>
-          <div className="mt-3 flex gap-3">
+          <div className="mt-3 flex flex-wrap gap-3">
             {product.colors.map((c) => (
               <button
                 key={c.name}
@@ -289,8 +287,21 @@ export function ProductView({ product, anime, tryOn: tryOnEnabled = false }: { p
         {/* Actions */}
         <div className="mt-6 flex gap-3">
           <QtyStepper value={qty} max={maxQty} onChange={setQty} />
-          <button onClick={(e) => commit(false, e.currentTarget)} disabled={colorSoldOut} className={btn({ className: "flex-1" })}>
-            {soldOut ? "Sold out" : colorSoldOut ? `Sold out in ${color.name}` : `Add to cart · ${formatBDT(product.price * qty)}`}
+          <button onClick={(e) => commit(false, e.currentTarget)} disabled={colorSoldOut} className={btn({ className: "min-w-0 flex-1 max-sm:px-4" })}>
+            {/* Under 375px the label drops its detail (the total is in the sticky bar, the colour note sits above) and truncates rather than widening the page. */}
+            <span className="truncate">
+              {soldOut ? (
+                "Sold out"
+              ) : colorSoldOut ? (
+                <>
+                  Sold out<span className="hidden min-[375px]:inline"> in {color.name}</span>
+                </>
+              ) : (
+                <>
+                  Add to cart<span className="hidden min-[375px]:inline"> · {formatBDT(product.price * qty)}</span>
+                </>
+              )}
+            </span>
           </button>
         </div>
         <button onClick={() => commit(true)} disabled={colorSoldOut} className={btn({ variant: "dark", className: "mt-3 w-full" })}>
@@ -357,7 +368,6 @@ export function ProductView({ product, anime, tryOn: tryOnEnabled = false }: { p
       </div>
 
       <SizeGuideModal open={guideOpen} onClose={closeGuide} defaultFit={product.fit} highlight={size} />
-      {tryOn && <TryOnStudio product={product} color={color} initialSize={size} onClose={closeTryOn} />}
     </div>
   );
 }

@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useState } from "react";
 import { ChevronDown, Menu, PackageSearch, Search, ShoppingBag } from "lucide-react";
-import { liveDrop } from "@emrix/shared/settings";
 import { cn } from "@emrix/shared/utils";
 import { Logo } from "@emrix/shared/ui/logo";
 import { useCart } from "@/components/cart/cart-context";
 import { useCatalog } from "@/components/catalog-context";
+import { useLiveDrop } from "@/lib/use-live-drop";
 import { MobileMenu } from "./mobile-menu";
 import { SearchOverlay } from "./search-overlay";
 
@@ -146,19 +146,10 @@ function AnimeMegaMenu() {
   );
 }
 
-// Shop pages are cached, so their HTML can outlive a drop. The end time is checked against the
-// browser's clock (to the minute); the server's HTML and hydration show the drop while it's set.
-function subscribeMinutes(tick: () => void) {
-  const id = setInterval(tick, 60_000);
-  return () => clearInterval(id);
-}
-const thisMinute = () => Math.floor(Date.now() / 60_000) * 60_000;
-
 /** The limited drop from Admin → Settings while it runs; otherwise the newest designs. */
 function MenuPromo() {
   const { settings, products } = useCatalog();
-  const now = useSyncExternalStore(subscribeMinutes, thisMinute, () => 0);
-  const drop = liveDrop(settings, products, now);
+  const drop = useLiveDrop(settings, products);
   const promo = drop
     ? {
         href: `/product/${drop.product.slug}`,
